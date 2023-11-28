@@ -158,10 +158,10 @@ const getSqlSelectFromRow = (config) => {
       } else if (value === null) {
         return `${value} AS ${key}`;
       } else if (value instanceof Array) {
-        return `[${getSelectStatement(value)}] AS ${key}`;
+        return `[${getSqlSelectFromRow(value)}] AS ${key}`;
       } else {
-        if (isStringInteger(key)) return `STRUCT(${getSelectStatement(value)})`;
-        else return `STRUCT(${getSelectStatement(value)}) AS ${key}`;
+        if (isStringInteger(key)) return `STRUCT(${getSqlSelectFromRow(value)})`;
+        else return `STRUCT(${getSqlSelectFromRow(value)}) AS ${key}`;
       }
     })
     .join(", ");
