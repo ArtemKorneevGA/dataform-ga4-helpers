@@ -43,7 +43,6 @@ const getSqlUnnestParam = (
   return `(SELECT ep.value.${paramTypeName} FROM UNNEST(${unnestColumnName}) ep WHERE ep.key = '${paramName}' LIMIT 1) ${alias}`;
 };
 
-
 const getSqlEventParams = (eventParams) => {
   const sql = eventParams.map((eventParam) =>
     getSqlEventParam(eventParam.name, eventParam.type, eventParam.columnName)
@@ -61,7 +60,6 @@ const getSqlUserProperties = (userProperties) => {
   );
   return userProperties.length > 0 ? sql.join(", ") : "";
 };
-
 
 const getSqlGetFirstNotNullValue = (
   paramName,
@@ -82,7 +80,6 @@ const getSqlGetFirstNotNullValues = (columns) => {
   return columns.length > 0 ? sql.join(",") : "";
 };
 
-
 const getSqlColumns = (params) => {
   const sql = params.map(
     (param) =>
@@ -91,7 +88,6 @@ const getSqlColumns = (params) => {
   return params.length > 0 ? sql.join(", ") : "";
 };
 
-
 const getSqlQueryParameter = (url, param) => {
   const sql = `REGEXP_EXTRACT(${url}, r'(?i).*[?&#]${param.name.toLowerCase()}=([^&#\?]*)') as ${
     param.columnName ? param.columnName : param.name
@@ -99,13 +95,10 @@ const getSqlQueryParameter = (url, param) => {
   return sql;
 };
 
-
 const getSqlQueryParameters = (url, params) => {
   const sql = params.map((param) => getSqlQueryParameter(url, param));
   return params.length > 0 ? sql.join(", ") : "";
 };
-
-
 
 const getDateFromTableName = (tblName) => {
   return tblName.substring(7);
@@ -132,11 +125,11 @@ const getSqlSessionId = () => {
 const getSqlDate = (timezone = "Europe/London") =>
   `DATE(TIMESTAMP_MICROS(event_timestamp), "${timezone}") as date`;
 
-  function isStringInteger(str) {
-    const num = Number(str);
-    return Number.isInteger(num);
-  }
-  
+function isStringInteger(str) {
+  const num = Number(str);
+  return Number.isInteger(num);
+}
+
 const getSqlSelectFromRow = (config) => {
   return Object.entries(config)
     .map(([key, value]) => {
@@ -160,7 +153,8 @@ const getSqlSelectFromRow = (config) => {
       } else if (value instanceof Array) {
         return `[${getSqlSelectFromRow(value)}] AS ${key}`;
       } else {
-        if (isStringInteger(key)) return `STRUCT(${getSqlSelectFromRow(value)})`;
+        if (isStringInteger(key))
+          return `STRUCT(${getSqlSelectFromRow(value)})`;
         else return `STRUCT(${getSqlSelectFromRow(value)}) AS ${key}`;
       }
     })
@@ -177,8 +171,26 @@ const getSqlUnionAllFromRows = (rows) => {
     console.error("Error reading or parsing the file", err);
   }
 };
-  
-  
+
+const declareSources = ({
+  database = dataform.projectConfig.defaultDatabase,
+  dataset,
+  incrementalTableName,
+  nonIncrementalTableName = "events_*",
+}) => {
+  declare({
+    database,
+    schema: dataset,
+    name: incrementalTableName,
+  });
+
+  declare({
+    database,
+    schema: dataset,
+    name: nonIncrementalTableName,
+  });
+};
+
 module.exports = {
   getDateFromTableName,
   getFormattedDateFromTableName,
@@ -196,4 +208,5 @@ module.exports = {
   getSqlQueryParameter,
   getSqlQueryParameters,
   getSqlUnionAllFromRows,
+  declareSources,
 };
