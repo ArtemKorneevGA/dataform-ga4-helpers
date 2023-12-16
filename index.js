@@ -24,6 +24,9 @@ const getSqlUnnestParam = (
   if (paramType.toLowerCase() === "coalesce") {
     return `(SELECT COALESCE(ep.value.string_value, SAFE_CAST(ep.value.int_value AS STRING), SAFE_CAST(ep.value.double_value AS STRING), SAFE_CAST(ep.value.float_value AS STRING)) FROM UNNEST(${unnestColumnName}) ep WHERE ep.key = '${paramName}' LIMIT 1) ${alias}`;
   }
+  if (paramType.toLowerCase() === "coalesce_float") {
+    return `(SELECT COALESCE(ep.value.float_value, SAFE_CAST(ep.value.int_value AS FLOAT64), ep.value.double_value) FROM UNNEST(${unnestColumnName}) ep WHERE ep.key = '${paramName}' LIMIT 1) ${alias}`;
+  }
   switch (paramType.toLowerCase()) {
     case "string":
       paramTypeName = "string_value";
@@ -115,6 +118,8 @@ const getSqlList = (list) => {
   return `('${list.join("','")}')`;
 };
 const getSqlEventId = (timestampEventParamName) => {
+  if (typeof timestampEventParamName === "undefined")
+    return `FARM_FINGERPRINT(CONCAT(event_timestamp, event_name, user_pseudo_id, ifnull((select ep.value.int_value from unnest(event_params) as ep where ep.key = 'engagement_time_msec' ),0))) as event_id`;
   return `FARM_FINGERPRINT(CONCAT(ifnull((SELECT ep.value.int_value FROM UNNEST(event_params) ep WHERE ep.key = '${timestampEventParamName}'),event_timestamp), event_name, user_pseudo_id)) as event_id`;
 };
 
