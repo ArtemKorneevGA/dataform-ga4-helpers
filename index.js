@@ -142,11 +142,11 @@ const getSqlSelectFromRow = (config) => {
         return `${value} AS ${key}`;
       } else if (key === "date") {
         return `DATE '${value}' AS ${key}`;
-      } else if (key === "event_timestamp") {
+      } else if (key === "event_timestamp" && !/^\d+$/.test(value)) {
         return `TIMESTAMP '${value}' AS ${key}`;
-      } else if (key === "session_start") {
+      } else if (key === "session_start" && !/^\d+$/.test(value)) {
         return `TIMESTAMP '${value}' AS ${key}`;
-      } else if (key === "session_end") {
+      } else if (key === "session_end" && !/^\d+$/.test(value)) {
         return `TIMESTAMP '${value}' AS ${key}`;
       } else if (typeof value === "string") {
         if (key === "int_value") return `${parseInt(value)} AS ${key}`;
