@@ -201,6 +201,7 @@ const declareSources = ({
 module.exports = {
   getDateFromTableName,
   getFormattedDateFromTableName,
+  getSqlUnnestParam,
   getSqlEventParam,
   getSqlEventParams,
   getSqlUserProperty,
