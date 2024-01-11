@@ -190,12 +190,13 @@ const declareSources = ({
     schema: dataset,
     name: incrementalTableName,
   });
-
-  declare({
-    database,
-    schema: dataset,
-    name: nonIncrementalTableName,
-  });
+  if (incrementalTableName != nonIncrementalTableName) {
+    declare({
+      database,
+      schema: dataset,
+      name: nonIncrementalTableName,
+    });
+  }
 };
 
 module.exports = {
